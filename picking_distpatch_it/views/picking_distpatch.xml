@@ -1,0 +1,223 @@
+<odoo>
+  <data>
+    <!-- <record id="vpicktree_inherit_distpatch" model="ir.ui.view">
+      <field name="name">vpicktree_inherit_distpatch</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock.vpicktree"></field>
+      <field name="arch" type="xml">
+        <field name="company_id" position="after">
+          <field name="peso_picking_it" />
+        </field>
+      </field>
+    </record> -->
+
+     <record id="view_picking_form" model="ir.ui.view">
+      <field name="name">stock.picking.form.fields</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock.view_picking_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='state']" position="before">
+          <field name="es_venta" invisible="1"/>
+          <button name="create_factura" attrs="{'invisible': ['|',('es_venta','!=',True),'|',('invoice_id','!=',False),('state','!=','done')]}" string="Crear Factura" type="object" class="oe_highlight"/>
+        </xpath>
+
+          <field name="origin" position="after">
+            <field name="picking_distpatch_id" readonly="1" />
+          </field>
+      </field>
+    </record>
+
+
+    <record id="view_picking_distpatch_tree_it" model="ir.ui.view">
+      <field name="name">view_picking_distpatch_tree_it</field>
+      <field name="model">picking.distpatch.it</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name" />
+          <field name="date_order" />
+          <field name="picker_id" />
+          <field name="fleet_vehicle_id" />
+          <field name="peso_total" />
+          <field name="state" />
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_picking_distpatch_form_it" model="ir.ui.view">
+      <field name="name">view_picking_distpatch_form_it</field>
+      <field name="model">picking.distpatch.it</field>
+      <field name="arch" type="xml">
+        <form string="Despacho de Mercaderia">
+          <header>
+            <button name="button_finalized" attrs="{'invisible': [('state','=','finalized')]}" string="Finalizar" type="object" class="oe_highlight"/>
+            <button name="button_restore" attrs="{'invisible': [('state','=','draft')]}" string="Volver a Borrador" type="object" class="oe_highlight"/>
+            <button string="Agregar Salidas Almacen" class="btn btn-primary" states="draft" type="object" name="add_detalles" />
+            <field name="state" widget="statusbar" statusbar_visible="draft,finalized"/>
+          </header>
+          <sheet>
+            <h1>
+              <field name="name"/>
+            </h1>
+            <group>
+              <group>
+                <field name="date_order" attrs="{'readonly': [('state','=','finalized')]}"/>
+                <field name="picker_id" />
+                <field name="company_id" attrs="{'readonly': [('state','=','finalized')]}"/>
+              </group>
+              <group>
+                <field name="peso_total" string="Peso Total del Vehiculo" readonly="1"/>
+                <field name="total_albaranes" string="Peso Total del Picking" readonly="1"/>
+                <field name="fleet_vehicle_id" attrs="{'readonly': [('state','=','finalized')]}"/>
+              </group>
+            </group>
+            <notebook>
+              <page name="albaranes" string="Albaranes">
+                <field name="related_picking_ids" mode="tree,kanban" domain="[('state','in',['done']),('picking_type_id.code','=','outgoing')]" readonly="1">
+                  <tree  string="Albaranes" editable="bottom">
+                    <field name="name"/>                    
+                    <field name="partner_id"/>              
+                    <field name="ruta"/>
+                    <field name="ending_point"/>
+                    <field name="ciudad"/>
+                    <field name="provincia"/>
+                    <field name="distrito"/>
+
+                    <field name="kardex_date"/>
+                    <field name="origin"/>
+                    <field name="state"/>
+                    <field name="company_id"/>
+                    <field name="peso_picking_it"/>
+                    
+                    <button string="Salida de Alm." type="object" name="entrar"/>
+                    <button string="Quitar" type="object" name="quitar" attrs="{'invisible': [('parent.state','=','finalized')]}"/>                    
+                  </tree>             
+                </field>
+                <field name="id" invisible="1"/>
+                <group name="note_group" col="6">
+                  <group colspan="4">
+                      <field name="note" nolabel="1" placeholder="Terms and conditions..."/>
+                  </group>
+              </group>
+              </page>              
+            </notebook>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_ids" widget="mail_thread" />
+        </div>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_picking_distpatch_it" model="ir.actions.act_window">
+      <field name="name">Picking</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">picking.distpatch.it</field>
+      <field name="view_mode">tree,form</field>
+      
+    </record>
+
+    <menuitem id="menu_picking_distpatch_main"
+            name="Despacho de Mercaderia"
+            sequence="5"
+            web_icon="picking_distpatch_it,static/description/icon.png"
+            groups="group_stock_distpatch"/>
+
+    <menuitem id="menu_picking_distpatch_second"
+            name="Despacho de Mercaderia"
+            sequence="5"/>
+
+    <menuitem id="menu_picking_distpatch"
+            name="Picking"
+            parent="menu_picking_distpatch_second"
+            action="action_picking_distpatch_it"
+            sequence="5"/>
+
+
+
+
+    <record id="view_stock_picking_despacho_tree2" model="ir.ui.view">
+      <field name="name">stock.picking.tree</field>
+      <field name="model">stock.picking</field>
+      <field eval="1" name="priority"/>
+      <field name="arch" type="xml">
+        <tree string="Detalle de Mercaderia">
+                    <field name="name"/>      
+                    <field name="numberg" string="Guia"/>      
+                    <field name="invoice_id" string="Num. Factura"/>      
+                    <field name="picking_distpatch_id" string="Num. Picking"/>      
+                    <field name="partner_id"/>              
+                    <field name="ruta" invisible="1"/>
+                    <field name="ending_point"/>
+                    <field name="ciudad"/>
+                    <field name="provincia"/>
+                    <field name="distrito"/>
+                    <field name="kardex_date"/>
+                    <field name="origin"/>
+                    <field name="state"/>
+                    <field name="company_id"/>
+                    <field name="peso_picking_it"/>
+                    <field name="picking_distpatch_id" invisible="1"/>                    
+            <button name="ver_picking" attrs="{'invisible': [('picking_distpatch_id','=',False)]}" string="Ver Picking" type="object" class="oe_highlight"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="stock_picking_despacho_search2" model="ir.ui.view">
+      <field name="name">stock.picking.search</field>
+      <field name="model">stock.picking</field>
+      <field name="arch" type="xml">
+        <search string="Detalle de Mercaderia">
+          <field name="name"/>
+          <field name="ruta"/>
+          <field name="ending_point"/>
+          <field name="ciudad"/>
+          <field name="provincia"/>
+          <field name="distrito"/>
+          <field name="kardex_date"/>
+          <separator/>
+          <group expand="1" string="Group By...">
+            <filter string="ruta" name="ruta" icon="terp-partner" context="{'group_by':'ruta'}"/>
+            <filter string="partner_id" name="partner_id" icon="terp-partner" context="{'group_by':'partner_id'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+
+    <record id="action_picking_distpatch_it_detalle3" model="ir.actions.act_window">
+      <field name="name">Detalle de Mercaderia</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">stock.picking</field>
+      <field name="view_mode">tree,form</field>       
+      <field name="view_ids"
+           eval="
+              [
+              (5, 0, 0),
+              (0, 0, {'view_mode': 'tree', 'view_id': ref('view_stock_picking_despacho_tree2')}),
+              (0, 0, {'view_mode': 'form', 'view_id': False})
+              ]" />
+      <field name="domain">[('state','=','done'),('picking_type_id.code','=','outgoing'),('invoice_id','!=',False)]</field>
+      <field name="search_view_id" ref="stock_picking_despacho_search2"/>
+
+    </record>
+
+
+    <menuitem id="menu_picking_distpatch_detalle"
+            name="Detalle de Mercaderia"
+            parent="menu_picking_distpatch_second"
+            action="action_picking_distpatch_it_detalle3"
+            sequence="5"/>
+
+
+  <record model="ir.actions.server" id="action_so_dispatch">
+    <field name="name">Generar Picking</field>
+    <field name="model_id" ref="picking_distpatch_it.model_stock_picking"/>
+    <field name="binding_model_id" ref="picking_distpatch_it.model_stock_picking" />
+    <field name="state">code</field>
+    <field name="code">action = records.create_picking_distpatch()</field>
+  </record>
+
+
+
+  </data>
+</odoo>
