@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>        
+        <record id="view_res_partner_comercial_name_filter" model="ir.ui.view">
+			<field name="name">view.res.partner.comercial.name.filter</field>
+			<field name="model">res.partner</field>
+			<field name="inherit_id" ref="base.view_res_partner_filter"/>
+			<field name="arch" type="xml">				
+				<field name="name" position="replace">
+					<field name="name" filter_domain="['|', '|','|', ('display_name', 'ilike', self), ('ref', '=', self), ('email', 'ilike', self),('n2_nom_comer', 'ilike', self)]"/>
+				</field>
+			</field>
+		</record>
+        
+        <record id="view_partner_form_comercial_name_inherit_ruc" model="ir.ui.view">
+			<field name="name">view.partner.form.comercial.name.inherit.ruc</field>
+			<field name="model">res.partner</field>
+			<field name="inherit_id" ref="res_partner_clase_categoria_fields.view_partner_form_inherit_ruc"/>
+			<field name="arch" type="xml">				
+				<field name="n2_nom_comer" position="replace">
+                    <div>
+					    <field name="n2_nom_comer" placeholder="Nombre Comercial"/>
+					</div>
+				</field>
+			</field>
+		</record>
+    </data>    
+</odoo>
